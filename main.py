@@ -33,7 +33,7 @@ async def read_root():
 
 
 @app.post("/upload/")
-async def create_upload_file(file_sourse: UploadFile = File(...), file_traget: UploadFile = File(...)):
+async def create_upload_file(file_sourse: UploadFile = File(...), file_traget: UploadFile = File(...), is_face_enhancer: bool = False):
 
     try:
         # Validate file type and get file_sourse image
@@ -75,7 +75,7 @@ async def create_upload_file(file_sourse: UploadFile = File(...), file_traget: U
         raise HTTPException(status_code=500, detail=str(e))
 
 
-async def process_image(file_path_sourse,file_path_traget,output_path): # Replace with the actual path to the uploaded file
+async def process_image(file_path_sourse,file_path_traget,output_path,is_face_enhancer): # Replace with the actual path to the uploaded file
   cmd = [
     "python",
     "run.py",
@@ -90,6 +90,19 @@ async def process_image(file_path_sourse,file_path_traget,output_path): # Replac
     "--frame-processor",
     "face_swapper",
     "face_enhancer",
+  ] if is_face_enhancer else [
+    "python",
+    "run.py",
+    "--target",
+    file_path_traget,
+    "--source",
+    file_path_sourse,
+    "-o",
+    output_path,
+    "--execution-provider",
+    "cuda",
+    "--frame-processor",
+    "face_swapper",
   ]
   try:
     result = subprocess.run(cmd, check=True, capture_output=True, text=True)
@@ -112,7 +125,7 @@ async def process_image(file_path_sourse,file_path_traget,output_path): # Replac
 
 # video swap
 @app.post("/video_swap/")
-async def video_swap(file_sourse: UploadFile = File(...), file_traget: UploadFile = File(...)):
+async def video_swap(file_sourse: UploadFile = File(...), file_traget: UploadFile = File(...), is_face_enhancer: bool = False):
 
     try:
         # Validate file type and get file_sourse image
@@ -144,7 +157,7 @@ async def video_swap(file_sourse: UploadFile = File(...), file_traget: UploadFil
         output_path = os.path.join(VIDEODIR, output_filename)
 
         # Run the image processing script asynchronously
-        await process_video(file_path_sourse,file_path_traget,output_path)
+        await process_video(file_path_sourse,file_path_traget,output_path,is_face_enhancer)
         with open(output_path, "rb") as f:
           encoded_image = base64.b64encode(f.read())
 
@@ -154,8 +167,23 @@ async def video_swap(file_sourse: UploadFile = File(...), file_traget: UploadFil
         raise HTTPException(status_code=500, detail=str(e))
 
 
-async def process_video(file_path_sourse,file_path_traget,output_path): # Replace with the actual path to the uploaded file
+async def process_video(file_path_sourse,file_path_traget,output_path, is_face_enhancer): # Replace with the actual path to the uploaded file
+
   cmd = [
+    "python",
+    "run.py",
+    "--target",
+    file_path_traget,
+    "--source",
+    file_path_sourse,
+    "-o",
+    output_path,
+    "--execution-provider",
+    "cuda",
+    "--frame-processor",
+    "face_swapper",
+    "face_enhancer",
+  ] if is_face_enhancer else [
     "python",
     "run.py",
     "--target",
