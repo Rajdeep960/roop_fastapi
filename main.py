@@ -65,7 +65,7 @@ async def create_upload_file(file_sourse: UploadFile = File(...), file_traget: U
         output_path = os.path.join(IMAGEDIR, output_filename)
 
         # Run the image processing script asynchronously
-        await process_image(file_path_sourse,file_path_traget,output_path)
+        await process_image(file_path_sourse,file_path_traget,output_path,is_face_enhancer)
         with open(output_path, "rb") as f:
           encoded_image = base64.b64encode(f.read())
 
