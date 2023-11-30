@@ -219,14 +219,31 @@ async def process_video(file_path_sourse,file_path_traget,output_path, is_face_e
 
 
 
-@app.get("/show/")
-async def read_random_file():
+@app.get("/get_images/")
+async def get_images():
     # get random file from the image directory
+    base64ImagesList = []
     files = os.listdir(IMAGEDIR)
-    random_index = randint(0, len(files) - 1)
-    path = f"{IMAGEDIR}{files[random_index]}"
-    return FileResponse(path)
+    # print("files",files)
+    for i in files:
+      path = f"{IMAGEDIR}{i}"
+      with open(path, "rb") as f:
+          en_img = base64.b64encode(f.read())
+          base64ImagesList.append(en_img)
+    return {"base64": base64ImagesList}
 
+@app.get("/get_videos/")
+async def get_videos():
+    # get random file from the image directory
+    base64VideoList = []
+    files = os.listdir(VIDEODIR)
+    # print("files",files)
+    for i in files:
+      path = f"{VIDEODIR}{i}"
+      with open(path, "rb") as f:
+          en_img = base64.b64encode(f.read())
+          base64VideoList.append(en_img)
+    return {"base64": base64VideoList}
 
 
 
