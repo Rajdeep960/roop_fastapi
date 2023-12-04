@@ -15,15 +15,27 @@ import base64
 # create directory
 import os.path
 from os import path
+
+# Input Image Dir
 if path.exists('/content/images') == False:
   os.mkdir('/content/images')
-
 IMAGEDIR = "/content/images/"
 
+# Output Image Dir
+if path.exists('/content/output_images') == False:
+  os.mkdir('/content/output_images')
+OUTIMAGEDIR = "/content/output_images/"
+
+# Input Video Dir
 if path.exists('/content/videos') == False:
   os.mkdir('/content/videos')
-
 VIDEODIR = "/content/videos/"
+
+# Output Video Dir
+if path.exists('/content/output_videos') == False:
+  os.mkdir('/content/output_videos')
+OUTVIDEODIR = "/content/output_videos/"
+
 
 app = FastAPI()
 
@@ -62,7 +74,7 @@ async def create_upload_file(file_sourse: UploadFile = File(...), file_traget: U
 
         # get output_path
         output_filename = f"{uuid.uuid4()}.jpg"
-        output_path = os.path.join(IMAGEDIR, output_filename)
+        output_path = os.path.join(OUTIMAGEDIR, output_filename)
 
         # Run the image processing script asynchronously
         await process_image(file_path_sourse,file_path_traget,output_path,is_face_enhancer)
@@ -154,7 +166,7 @@ async def video_swap(file_sourse: UploadFile = File(...), file_traget: UploadFil
 
         # get output_path
         output_filename = f"{uuid.uuid4()}.mp4"
-        output_path = os.path.join(VIDEODIR, output_filename)
+        output_path = os.path.join(OUTVIDEODIR, output_filename)
 
         # Run the image processing script asynchronously
         await process_video(file_path_sourse,file_path_traget,output_path,is_face_enhancer)
@@ -223,10 +235,10 @@ async def process_video(file_path_sourse,file_path_traget,output_path, is_face_e
 async def get_images():
     # get random file from the image directory
     base64ImagesList = []
-    files = os.listdir(IMAGEDIR)
+    files = os.listdir(OUTIMAGEDIR)
     # print("files",files)
     for i in files:
-      path = f"{IMAGEDIR}{i}"
+      path = f"{OUTIMAGEDIR}{i}"
       with open(path, "rb") as f:
           en_img = base64.b64encode(f.read())
           base64ImagesList.append(en_img)
@@ -236,10 +248,10 @@ async def get_images():
 async def get_videos():
     # get random file from the image directory
     base64VideoList = []
-    files = os.listdir(VIDEODIR)
+    files = os.listdir(OUTVIDEODIR)
     # print("files",files)
     for i in files:
-      path = f"{VIDEODIR}{i}"
+      path = f"{OUTVIDEODIR}{i}"
       with open(path, "rb") as f:
           en_img = base64.b64encode(f.read())
           base64VideoList.append(en_img)
